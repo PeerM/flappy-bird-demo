@@ -13,9 +13,9 @@
 (defn translate [start-pos vel time]
   (floor (+ start-pos (* time vel))))
 
-(def horiz-vel -0.15)
-(def gravity 0.05)
-(def jump-vel 21)
+(def horiz-vel -0.30)
+(def gravity 0.03)
+(def jump-vel 12)
 (def start-y 312)
 (def bottom-y 561)
 (def flappy-x 212)
@@ -176,18 +176,19 @@
 
 (defn main-template [{:keys [score cur-time jump-count
                              timer-running border-pos
-                             flappy-y pillar-list]}]
-  (sab/html [:div.board { :onMouseDown (fn [e]
-                                         (swap! flap-state jump)
-                                         (.preventDefault e))}
+                             flappy-y initial-vel time-delta pillar-list]}]
+  (sab/html [:div.board {:onMouseDown (fn [e]
+                                        (swap! flap-state jump)
+                                        (.preventDefault e))}
              [:h1.score score]
              (if-not timer-running
                [:a.start-button {:onClick #(start-game)}
                 (if (< 1 jump-count) "RESTART" "START")]
                [:span])
              [:div (map pillar pillar-list)]
-             [:div.flappy {:style {:top (px flappy-y)}}]
-             [:div.scrolling-border {:style { :background-position-x (px border-pos)}}]]))
+             [:div.flappy {:style {:top (px flappy-y) :color "red" :transform
+                                        (str "rotate(" (floor  ( * -1 (- initial-vel (* time-delta gravity)))) "deg)")}}]
+             [:div.scrolling-border {:style {:background-position-x (px border-pos)}}]]))
 
 (let [node (.getElementById js/document "board-area")]
   (defn renderer [full-state]
